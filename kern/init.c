@@ -8,6 +8,8 @@
 #include <kern/console.h>
 #include <kern/pmap.h>
 #include <kern/kclock.h>
+#include <kern/env.h>
+#include <kern/trap.h>
 
 
 void
@@ -25,13 +27,36 @@ i386_init(void)
 	cons_init();
 
 	cprintf("6828 decimal is %o octal!\n", 6828);
+    {
+        int x = 1, y = 3, z = 4;
+    Lab1_exercise8_3:
+        cprintf("x %d, y %x, z %d\n", x, y, z);
+    Lab1_exercise8_5:
+        cprintf("x=%d y=%d", 3);
+    }
+    {
+        unsigned int i = 0x000a646c;
+    Lab1_exercise8_4:
+        cprintf("H%x Wor%s", 57616, &i);
+    }
 
 	// Lab 2 memory management initialization functions
 	mem_init();
 
-	// Drop into the kernel monitor.
-	while (1)
-		monitor(NULL);
+	// Lab 3 user environment initialization functions
+	env_init();
+	trap_init();
+
+#if defined(TEST)
+	// Don't touch -- used by grading script!
+	ENV_CREATE(TEST, ENV_TYPE_USER);
+#else
+	// Touch all you want.
+	ENV_CREATE(user_hello, ENV_TYPE_USER);
+#endif // TEST*
+
+	// We only have one user environment for now, so just run it.
+	env_run(&envs[0]);
 }
 
 
